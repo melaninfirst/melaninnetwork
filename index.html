@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Melanin Network</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── DESKTOP LAYOUT ── */
+.app{display:flex;min-height:100vh;background:var(--white)}
+
+/* LEFT SIDEBAR — collapsed by default, expands on hover */
+.sidebar{
+  width:72px;padding:8px 0;
+  border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;bottom:0;
+  display:flex;flex-direction:column;
+  background:var(--white);z-index:200;
+  overflow:hidden;
+  transition:width 0.2s ease;
+}
+.sidebar:hover{width:244px;padding:8px 12px}
+.sb-logo{
+  font-family:'Brush Script MT','Segoe Script',cursive;
+  font-size:1.7rem;
+  background:var(--mn-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  padding:20px 16px 28px;display:block;
+  white-space:nowrap;opacity:0;transition:opacity 0.15s;
+  overflow:hidden;
+}
+.sidebar:hover .sb-logo{opacity:1}
+.sb-icon-logo{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--mn-grad);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;font-weight:900;color:#fff;
+  margin:20px auto 28px;flex-shrink:0;
+  transition:opacity 0.15s;
+}
+.sidebar:hover .sb-icon-logo{display:none}
+.nav-item{
+  display:flex;align-items:center;gap:16px;
+  padding:12px 22px;border-radius:10px;
+  cursor:pointer;font-size:0.97rem;color:var(--text);
+  text-decoration:none;margin-bottom:4px;
+  transition:background 0.15s;position:relative;
+  white-space:nowrap;
+}
+.sidebar:hover .nav-item{padding:12px 12px}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{font-weight:700}
+.nav-item svg{width:26px;height:26px;stroke:var(--text);fill:none;stroke-width:2;flex-shrink:0}
+.nav-item.active svg{stroke:var(--text);fill:var(--text)}
+.nav-item .nb{position:absolute;left:34px;top:8px;background:var(--red);color:#fff;font-size:0.55rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 3px}
+.sidebar:hover .nav-item .nb{left:28px}
+.nav-label{opacity:0;transition:opacity 0.1s;flex:1;overflow:hidden}
+.sidebar:hover .nav-label{opacity:1}
+.sb-apps{margin:16px 12px;padding:14px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--border);opacity:0;transition:opacity 0.15s;overflow:hidden}
+.sidebar:hover .sb-apps{opacity:1}
+.sb-more{margin-top:auto;border-top:1px solid var(--border);padding-top:12px}
+
+/* CENTRE FEED */
+.feed-wrap{
+  margin-left:72px;
+  flex:1;
+  max-width:640px;
+  padding-bottom:40px;
+  transition:margin-left 0.2s ease;
+}
+
+/* RIGHT SIDEBAR */
+.right-bar{
+  width:320px;
+  padding:24px 16px;
+  position:sticky;top:0;
+  height:100vh;overflow-y:auto;
+  flex-shrink:0;
+}
+.rb-profile{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.rb-av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:#fff;flex-shrink:0}
+.rb-info{flex:1}
+.rb-name{font-size:0.9rem;font-weight:700}
+.rb-sub{font-size:0.8rem;color:var(--muted)}
+.rb-switch{font-size:0.78rem;color:var(--blue);font-weight:700;cursor:pointer}
+.rb-sug-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rb-sug-hd span:first-child{font-size:0.84rem;font-weight:700;color:var(--muted)}
+.rb-sug-hd span:last-child{font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--text)}
+.rb-sug-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.rb-sug-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:#fff;flex-shrink:0}
+.rb-sug-info{flex:1}
+.rb-sug-name{font-size:0.84rem;font-weight:700}
+.rb-sug-sub{font-size:0.76rem;color:var(--muted)}
+.rb-follow{font-size:0.78rem;font-weight:700;color:var(--blue);cursor:pointer}
+.rb-footer{margin-top:20px;font-size:0.7rem;color:var(--muted);line-height:2}
+.rb-footer a{color:var(--muted);text-decoration:none}
+.rb-footer a:hover{text-decoration:underline}
+
+/* MOBILE: hide sidebar, show top bar + bottom nav */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .feed-wrap{margin-left:0;max-width:100%}
+  .right-bar{display:none}
+  .mob-top{display:flex}
+  .bot-nav{display:flex}
+  .app{padding-top:44px;padding-bottom:49px}
+}
+@media(min-width:769px){
+  .mob-top{display:none}
+  .bot-nav{display:none}
+  .app{padding-top:0}
+  .feed-wrap{padding-top:0}
+}
+
+/* stories on desktop */
+@media(min-width:769px){
+  .stories{border-top:1px solid var(--border)}
+  .feed-wrap{border-right:1px solid var(--border)}
+}
+
+/* right side layout wrapper */
+.outer{display:flex;margin-left:72px}
+@media(max-width:768px){.outer{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- MOBILE TOP BAR -->
+<header class="mob-top topbar">
+  <div class="logo">Melanin Network</div>
+  <div class="topbar-icons">
+    <button class="icon-btn" onclick="openPost()">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    </button>
+    <button class="icon-btn" onclick="location.href='notifications.html'">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <div class="badge">9+</div>
+    </button>
+    <button class="icon-btn">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div class="badge">3</div>
+    </button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT SIDEBAR (desktop) -->
+  <nav class="sidebar">
+    <div class="sb-icon-logo">MN</div>
+    <span class="sb-logo">Melanin Network</span>
+
+    <a class="nav-item active" href="index.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a class="nav-item" href="explore.html">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="nav-label">Search</span>
+    </a>
+    <a class="nav-item" href="explore.html">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span class="nav-label">Reels</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">Messages</span>
+      <div class="nb">3</div>
+    </a>
+    <a class="nav-item" href="notifications.html">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-label">Notifications</span>
+      <div class="nb">9+</div>
+    </a>
+    <a class="nav-item" href="explore.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Explore</span>
+    </a>
+    <a class="nav-item" onclick="openPost()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span class="nav-label">Create</span>
+    </a>
+    <a class="nav-item" href="profile.html">
+      <div class="prof-av amn" style="width:26px;height:26px;font-size:0.68rem">J</div>
+      <span class="nav-label">Profile</span>
+    </a>
+
+    <!-- App Links in sidebar -->
+    <div class="sb-apps">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Our Apps</div>
+      <a href="https://melaninfirst.co.uk" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);padding:7px 0;font-size:0.86rem;font-weight:600">
+        <span style="font-size:1.1rem">💜</span> Melanin First
+      </a>
+      <a href="https://www.melaninlinks.co.uk" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);padding:7px 0;font-size:0.86rem;font-weight:600">
+        <span style="font-size:1.1rem">🔗</span> Melanin Links
+      </a>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;font-size:0.86rem;font-weight:600;color:var(--muted)">
+        <span style="font-size:1.1rem">🎙️</span> Melanin Voice <span style="font-size:0.68rem;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:6px;margin-left:4px">Soon</span>
+      </div>
+    </div>
+
+    <div class="sb-more">
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        <span class="nav-label">More</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- CENTRE + RIGHT WRAPPER -->
+  <div class="outer" style="flex:1;justify-content:center">
+
+    <!-- CENTRE FEED -->
+    <div class="feed-wrap">
+
+      <!-- STORIES -->
+      <div class="stories">
+        <div class="s" onclick="openPost()">
+          <div class="s-ring add-ring"><div class="s-add">👤<div class="s-plus">+</div></div></div>
+          <div class="s-lbl">Your story</div>
+        </div>
+        <div class="s" onclick="openStory('zara_adeyemi','a1','ZA','✨ Just found love on Melanin First 💜\n\nBlack love is real and beautiful 🖤')">
+          <div class="s-ring"><div class="s-inr"><div class="s-av a1">ZA</div></div></div>
+          <div class="s-lbl">zara_adeyemi</div>
+        </div>
+        <div class="s" onclick="openStory('king_cuts','a4','KC','✂️ Fresh fades all weekend!\n\nBook via Melanin Links 👑\nSlots going fast!')">
+          <div class="s-ring"><div class="s-inr"><div class="s-av a4">KC</div></div></div>
+          <div class="s-lbl">king_cuts</div>
+        </div>
+        <div class="s" onclick="openStory('melanin_network','amn','MN','👑 Black Business Expo 2026\n📍 Brixton · 12 April\n\nFree entry — register now!')">
+          <div class="s-ring"><div class="s-inr"><div class="s-av amn">MN</div></div></div>
+          <div class="s-lbl">official</div>
+        </div>
+        <div class="s" onclick="openStory('naomi_beads','a3','NB','📿 New waist beads just dropped!\n\nHandmade. Ships UK-wide.\nOrder via Melanin Links 🌍')">
+          <div class="s-ring"><div class="s-inr"><div class="s-av a3">NB</div></div></div>
+          <div class="s-lbl">naomi_beads</div>
+        </div>
+        <div class="s" onclick="openStory('chi_jay','a5','CJ','🎵 New track OUT NOW!\n\nStream link in bio 🔥')">
+          <div class="s-ring"><div class="s-inr"><div class="s-av a5">CJ</div></div></div>
+          <div class="s-lbl">chi_jay</div>
+        </div>
+        <div class="s" onclick="openStory('temi_eats','a6','TE','🍲 Pop-up this Saturday!\n\n📍 Peckham, 12–6pm\nJerk, plantain, rum punch 👌🏾')">
+          <div class="s-ring seen"><div class="s-inr"><div class="s-av a6">TE</div></div></div>
+          <div class="s-lbl">temi_eats</div>
+        </div>
+        <div class="s" onclick="openStory('david_photo','a8','DA','📸 Portfolio update live!\n\nDM for bookings 📩')">
+          <div class="s-ring seen"><div class="s-inr"><div class="s-av a8">DA</div></div></div>
+          <div class="s-lbl">david_photo</div>
+        </div>
+      </div>
+
+      <!-- POST 1 -->
+      <article class="post">
+        <div class="post-top">
+          <div class="av-ring"><div class="av-inr"><div class="av a1">ZA</div></div></div>
+          <div class="post-info">
+            <div class="post-user">zara_adeyemi <span class="pill pill-f">💜 First</span></div>
+            <div class="post-loc">London, UK</div>
+          </div>
+          <div class="post-dots">···</div>
+        </div>
+        <div class="post-img" ondblclick="dbl(this)">
+          <div class="img-bg" style="background:linear-gradient(160deg,#2d1b69,#1a0a3e,#4a1942)"><span style="font-size:5rem">✨💜</span></div>
+          <div class="dbl-h">❤️</div>
+        </div>
+        <div class="post-acts">
+          <button class="act" onclick="doLike(this,324)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <button class="act" onclick="focC(this)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="act"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          <div class="spc"></div>
+          <button class="act" onclick="doSave(this)"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        </div>
+        <div class="post-likes">324 likes</div>
+        <div class="post-cap"><b>zara_adeyemi</b> Just matched with someone incredible on <b>@melaninfirstuk</b> 😍 I didn't believe it but here we are 🖤 <span class="ht">#MelaninFirst #BlackLove #MelaninNetwork</span></div>
+        <div class="post-viewc">View all 47 comments</div>
+        <div class="post-addc"><div class="c-av amn">J</div><input class="c-in" placeholder="Add a comment…"/><span class="c-em">😊</span></div>
+        <div class="post-time">2 minutes ago</div>
+      </article>
+
+      <!-- POST 2 -->
+      <article class="post">
+        <div class="post-top">
+          <div class="av-ring"><div class="av-inr"><div class="av a4">KC</div></div></div>
+          <div class="post-info">
+            <div class="post-user">king_cuts_brixton <span class="vck"></span> <span class="pill pill-l">🔗 Links</span></div>
+            <div class="post-loc">Brixton · South London</div>
+          </div>
+          <div class="post-dots">···</div>
+        </div>
+        <div class="post-img land" ondblclick="dbl(this)">
+          <div class="img-bg" style="background:linear-gradient(135deg,#1a0a3e,#3b1f0a,#d4af37)">
+            <div style="font-size:3rem">✂️👑</div>
+            <div style="color:#D4AF37;font-weight:900;font-size:1rem;letter-spacing:3px;margin-top:6px">KING CUTS</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:0.76rem;margin-top:4px">Book on Melanin Links</div>
+          </div>
+          <div class="dbl-h">❤️</div>
+        </div>
+        <div class="post-acts">
+          <button class="act" onclick="doLike(this,189)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <button class="act" onclick="focC(this)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="act"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          <div class="spc"></div>
+          <button class="act" onclick="doSave(this)"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        </div>
+        <div class="post-likes">189 likes</div>
+        <div class="post-cap"><b>king_cuts_brixton</b> Weekend slots going FAST ⚡ Book your fresh fade via <b>@melaninlinks</b> — link in bio 🙏🏾 <span class="ht">#SupportBlackBusiness #Brixton #FreshCut</span></div>
+        <div class="post-viewc">View all 23 comments</div>
+        <div class="post-addc"><div class="c-av amn">J</div><input class="c-in" placeholder="Add a comment…"/><span class="c-em">😊</span></div>
+        <div class="post-time">18 minutes ago</div>
+      </article>
+
+      <!-- SUGGESTED (mobile only) -->
+      <div class="sug-wrap" style="display:none" id="mob-sug">
+        <div class="sug-hd"><b>Suggested for you</b><a onclick="location.href='explore.html'">See all</a></div>
+        <div class="sug-row">
+          <div class="sug-card"><div class="sug-x" onclick="this.closest('.sug-card').remove()">✕</div><div class="sug-av a3">NB</div><div class="sug-name">naomi_beads</div><div class="sug-sub">Followed by king_cuts</div><button class="sug-btn" onclick="doFollow(this)">Follow</button></div>
+          <div class="sug-card"><div class="sug-x" onclick="this.closest('.sug-card').remove()">✕</div><div class="sug-av a5">CJ</div><div class="sug-name">chi_jay_music</div><div class="sug-sub">Followed by zara_adeyemi</div><button class="sug-btn" onclick="doFollow(this)">Follow</button></div>
+          <div class="sug-card"><div class="sug-x" onclick="this.closest('.sug-card').remove()">✕</div><div class="sug-av a8">DA</div><div class="sug-name">david_photo</div><div class="sug-sub">Suggested for you</div><button class="sug-btn" onclick="doFollow(this)">Follow</button></div>
+          <div class="sug-card"><div class="sug-x" onclick="this.closest('.sug-card').remove()">✕</div><div class="sug-av a6">TE</div><div class="sug-name">temi_eats</div><div class="sug-sub">Suggested for you</div><button class="sug-btn" onclick="doFollow(this)">Follow</button></div>
+        </div>
+      </div>
+
+      <!-- POST 3 -->
+      <article class="post">
+        <div class="post-top">
+          <div class="av-ring"><div class="av-inr"><div class="av amn">MN</div></div></div>
+          <div class="post-info">
+            <div class="post-user">melanin_network <span class="vck"></span> <span class="pill pill-e">📅 Event</span></div>
+            <div class="post-loc">Brixton Recreation Centre · London</div>
+          </div>
+          <div class="post-dots">···</div>
+        </div>
+        <div class="post-img port" ondblclick="dbl(this)">
+          <div class="img-bg" style="background:linear-gradient(160deg,#0a0a2e,#1a0050,#3b1f0a)">
+            <div style="font-size:0.7rem;color:#D4AF37;font-weight:700;letter-spacing:3px">12 · APRIL · 2026</div>
+            <div style="font-size:2rem;font-weight:900;color:#fff;text-align:center;line-height:1.2;margin:14px 0">Black Business<br/>Expo 2026</div>
+            <div style="width:36px;height:2px;background:#D4AF37;margin-bottom:14px"></div>
+            <div style="font-size:0.8rem;color:rgba(255,255,255,0.8);text-align:center;line-height:1.7">📍 Brixton, London<br/>Free entry · 50+ vendors · Live music</div>
+            <div style="background:#D4AF37;color:#000;font-weight:900;font-size:0.82rem;padding:11px 28px;border-radius:26px;margin-top:16px">Register Free →</div>
+          </div>
+          <div class="dbl-h">❤️</div>
+        </div>
+        <div class="post-acts">
+          <button class="act" onclick="doLike(this,512)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <button class="act" onclick="focC(this)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="act"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          <div class="spc"></div>
+          <button class="act" onclick="doSave(this)"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        </div>
+        <div class="post-likes">512 likes</div>
+        <div class="post-cap"><b>melanin_network</b> 🔥 UK's biggest Black business event. Free entry — register via <b>@melaninlinks</b> · Only 12 vendor spots left 👑 <span class="ht">#BlackBusiness #MelaninNetwork #Brixton</span></div>
+        <div class="post-viewc">View all 96 comments</div>
+        <div class="post-addc"><div class="c-av amn">J</div><input class="c-in" placeholder="Add a comment…"/><span class="c-em">😊</span></div>
+        <div class="post-time">1 hour ago</div>
+      </article>
+
+      <!-- POST 4 -->
+      <article class="post">
+        <div class="post-top">
+          <div class="av-ring no-story"><div class="av a7">AB</div></div>
+          <div class="post-info">
+            <div class="post-user">afrobeads_uk <span class="pill pill-l">🔗 Links</span></div>
+            <div class="post-loc">Peckham · London</div>
+          </div>
+          <div class="post-dots">···</div>
+        </div>
+        <div class="post-img" ondblclick="dbl(this)">
+          <div class="img-bg" style="background:linear-gradient(135deg,#78350f,#d97706,#fef3c7)"><span>📿✨</span></div>
+          <div class="dbl-h">❤️</div>
+        </div>
+        <div class="post-acts">
+          <button class="act" onclick="doLike(this,277)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+          <button class="act"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="act"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          <div class="spc"></div>
+          <button class="act" onclick="doSave(this)"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        </div>
+        <div class="post-likes">277 likes</div>
+        <div class="post-cap"><b>afrobeads_uk</b> New handmade waist beads just dropped 🙌🏾 Order via <b>@melaninlinks</b> or DM. Ships UK-wide 📦 <span class="ht">#BlackOwned #AfricanJewellery #Peckham</span></div>
+        <div class="post-viewc">View all 31 comments</div>
+        <div class="post-addc"><div class="c-av amn">J</div><input class="c-in" placeholder="Add a comment…"/><span class="c-em">😊</span></div>
+        <div class="post-time">3 hours ago</div>
+      </article>
+
+    </div><!-- /feed-wrap -->
+
+    <!-- RIGHT SIDEBAR (desktop only) -->
+    <div class="right-bar">
+      <!-- Your profile -->
+      <div class="rb-profile">
+        <div class="rb-av amn">J</div>
+        <div class="rb-info">
+          <div class="rb-name">john_melanin</div>
+          <div class="rb-sub">John · Founder 👑</div>
+        </div>
+        <div class="rb-switch">Switch</div>
+      </div>
+
+      <!-- Suggested -->
+      <div class="rb-sug-hd">
+        <span>Suggested for you</span>
+        <span onclick="location.href='explore.html'">See all</span>
+      </div>
+
+      <div class="rb-sug-row">
+        <div class="rb-sug-av a3">NB</div>
+        <div class="rb-sug-info"><div class="rb-sug-name">naomi_beads</div><div class="rb-sug-sub">Followed by king_cuts</div></div>
+        <div class="rb-follow" onclick="this.textContent=this.textContent=='Follow'?'Following':'Follow'">Follow</div>
+      </div>
+      <div class="rb-sug-row">
+        <div class="rb-sug-av a5">CJ</div>
+        <div class="rb-sug-info"><div class="rb-sug-name">chi_jay_music</div><div class="rb-sug-sub">Followed by zara_adeyemi</div></div>
+        <div class="rb-follow" onclick="this.textContent=this.textContent=='Follow'?'Following':'Follow'">Follow</div>
+      </div>
+      <div class="rb-sug-row">
+        <div class="rb-sug-av a8">DA</div>
+        <div class="rb-sug-info"><div class="rb-sug-name">david_photo</div><div class="rb-sug-sub">Suggested for you</div></div>
+        <div class="rb-follow" onclick="this.textContent=this.textContent=='Follow'?'Following':'Follow'">Follow</div>
+      </div>
+      <div class="rb-sug-row">
+        <div class="rb-sug-av a6">TE</div>
+        <div class="rb-sug-info"><div class="rb-sug-name">temi_eats_london</div><div class="rb-sug-sub">Suggested for you</div></div>
+        <div class="rb-follow" onclick="this.textContent=this.textContent=='Follow'?'Following':'Follow'">Follow</div>
+      </div>
+      <div class="rb-sug-row">
+        <div class="rb-sug-av a7">AB</div>
+        <div class="rb-sug-info"><div class="rb-sug-name">afrobeads_uk</div><div class="rb-sug-sub">Followed by naomi_beads</div></div>
+        <div class="rb-follow" onclick="this.textContent=this.textContent=='Follow'?'Following':'Follow'">Follow</div>
+      </div>
+      <div class="rb-sug-row">
+        <div class="rb-sug-av a2">RM</div>
+        <div class="rb-sug-info"><div class="rb-sug-name">rise_melanin</div><div class="rb-sug-sub">Suggested for you</div></div>
+        <div class="rb-follow" onclick="this.textContent=this.textContent=='Follow'?'Following':'Follow'">Follow</div>
+      </div>
+
+      <!-- Footer -->
+      <div class="rb-footer">
+        <div style="margin-bottom:6px">
+          <a href="#">About</a> · <a href="#">Help</a> · <a href="#">Press</a> · <a href="#">API</a> · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Locations</a>
+        </div>
+        <div>© 2026 Melanin Network · All rights reserved</div>
+      </div>
+    </div>
+
+  </div><!-- /outer -->
+</div><!-- /app -->
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bot-nav">
+  <div class="nt active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+  <div class="nt" onclick="location.href='explore.html'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+  <div class="nt" onclick="openPost()"><div class="create-box"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div></div>
+  <div class="nt" onclick="location.href='notifications.html'"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+  <div class="nt" onclick="location.href='profile.html'"><div class="prof-av amn">J</div></div>
+</nav>
+
+<!-- STORY VIEWER -->
+<div class="sv" id="sv">
+  <div class="sv-bars"><div class="sv-bar"><div class="sv-prog" id="sv-prog"></div></div></div>
+  <div class="sv-hd">
+    <div class="sv-av" id="sv-av"></div>
+    <div class="sv-nm" id="sv-nm"></div>
+    <div class="sv-tm">Just now</div>
+    <div class="sv-cl" onclick="closeSV()">✕</div>
+  </div>
+  <div class="sv-body"><div class="sv-txt" id="sv-txt"></div></div>
+  <div class="sv-ft">
+    <input class="sv-in" placeholder="Send message…"/>
+    <div class="sv-ht" onclick="this.textContent=this.textContent=='🤍'?'❤️':'🤍'">🤍</div>
+    <div class="sv-sd">➤</div>
+  </div>
+</div>
+
+<!-- POST SHEET -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeOv()">
+  <div class="sh">
+    <div class="sh-hdl"></div>
+    <div class="sh-hd"><span>New post</span><button onclick="closeOv()">✕</button></div>
+    <div class="sh-row">
+      <div class="sh-av amn">J</div>
+      <textarea class="sh-ta" id="sh-ta" rows="4" placeholder="Share something with the community…"></textarea>
+    </div>
+    <div class="sh-tools">
+      <div class="sh-tool"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Photo</div>
+      <div class="sh-tool"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Video</div>
+      <div class="sh-tool"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Location</div>
+      <div class="sh-tool"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Tag</div>
+    </div>
+    <div class="sh-foot">
+      <div class="sh-aud">Everyone ▾</div>
+      <button class="sh-share" onclick="closeOv()">Share</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// show suggested on mobile
+if(window.innerWidth<=768) document.getElementById('mob-sug').style.display='block';
+
+let svT;
+function openStory(nm,cls,in_,txt){
+  const sv=document.getElementById('sv');
+  document.getElementById('sv-nm').textContent=nm;
+  const a=document.getElementById('sv-av');a.className='sv-av '+cls;a.textContent=in_;
+  document.getElementById('sv-txt').textContent=txt;
+  const p=document.getElementById('sv-prog');p.style.animation='none';void p.offsetWidth;p.style.animation='';
+  sv.classList.add('open');clearTimeout(svT);svT=setTimeout(closeSV,5000);
+}
+function closeSV(){document.getElementById('sv').classList.remove('open');clearTimeout(svT)}
+function doLike(btn,n){
+  btn.classList.toggle('liked');
+  const el=btn.closest('.post').querySelector('.post-likes');
+  const c=parseInt(el.textContent);
+  el.textContent=(btn.classList.contains('liked')?c+1:c-1)+' likes';
+  if(btn.classList.contains('liked')){const s=btn.querySelector('svg');s.style.transform='scale(1.4)';setTimeout(()=>s.style.transform='',200)}
+}
+function doSave(btn){btn.classList.toggle('saved')}
+function dbl(img){
+  const h=img.querySelector('.dbl-h');h.classList.remove('pop');void h.offsetWidth;h.classList.add('pop');
+  const lb=img.closest('.post').querySelector('.act');
+  if(!lb.classList.contains('liked')){lb.classList.add('liked');const el=img.closest('.post').querySelector('.post-likes');el.textContent=(parseInt(el.textContent)+1)+' likes';}
+}
+function focC(el){el.closest('.post').querySelector('.c-in').focus()}
+function doFollow(btn){btn.classList.toggle('ing');btn.textContent=btn.classList.contains('ing')?'Following':'Follow'}
+function openPost(){document.getElementById('ov').classList.add('open');setTimeout(()=>document.getElementById('sh-ta').focus(),280)}
+function closeOv(){document.getElementById('ov').classList.remove('open')}
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Explore · Melanin Network</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--purple:#7C3AED;--gold:#D4AF37;--pink:#E91E8C;--blue:#0095f6;--bg:#fafafa;--white:#fff;--border:#dbdbdb;--text:#262626;--muted:#8e8e8e;--mn-grad:linear-gradient(45deg,#D4AF37,#c084fc,#7C3AED);--nav:62px;--top:44px}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text)}
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:10px;z-index:300}
+.search-box{flex:1;background:#efefef;border-radius:10px;padding:8px 14px;font-size:0.9rem;border:none;outline:none;color:var(--text);font-family:inherit}
+.search-box::placeholder{color:var(--muted)}
+.search-cancel{color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.main{padding-top:var(--top);padding-bottom:calc(var(--nav)+8px)}
+/* tabs */
+.tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);padding:0 4px;position:sticky;top:var(--top);z-index:200;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 16px;font-size:0.82rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:var(--text);border-bottom-color:var(--text)}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px}
+.grid-item{aspect-ratio:1/1;position:relative;overflow:hidden;cursor:pointer;background:#ddd}
+.grid-item-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;transition:opacity 0.15s}
+.grid-item:hover .grid-item-bg{opacity:0.85}
+.grid-item.tall{grid-row:span 2}
+.grid-item.wide{grid-column:span 2}
+.grid-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;gap:12px;opacity:0;transition:all 0.15s}
+.grid-item:hover .grid-overlay{background:rgba(0,0,0,0.25);opacity:1}
+.grid-overlay span{color:#fff;font-size:0.8rem;font-weight:700}
+/* reels banner */
+.reel-banner{background:var(--white);padding:12px;border-bottom:1px solid var(--border)}
+.reel-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.reel-scroll::-webkit-scrollbar{display:none}
+.reel-item{flex-shrink:0;width:100px;border-radius:10px;overflow:hidden;position:relative;cursor:pointer}
+.reel-bg{height:160px;display:flex;align-items:center;justify-content:center;font-size:2rem}
+.reel-label{position:absolute;bottom:0;left:0;right:0;padding:6px;font-size:0.68rem;font-weight:700;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,0.6))}
+/* bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--border);display:flex;align-items:stretch;z-index:300;padding-bottom:env(safe-area-inset-bottom)}
+.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text);text-decoration:none;padding:0 4px}
+.nav-tab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8}
+.nav-tab.active svg{fill:var(--text)}
+.nav-tab span{font-size:0.58rem;font-weight:600;color:var(--muted)}
+.nav-tab.active span{color:var(--text)}
+.nav-post-btn{width:44px;height:44px;border-radius:12px;margin-top:-4px;background:linear-gradient(135deg,var(--gold),var(--purple));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(124,58,237,0.35)}
+.nav-post-btn svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.5}
+.av1{background:linear-gradient(135deg,#D4AF37,#8B6914)}.av2{background:linear-gradient(135deg,#7C3AED,#A855F7)}.av3{background:linear-gradient(135deg,#FF6B6B,#E91E8C)}.av4{background:linear-gradient(135deg,#059669,#34D399)}.av5{background:linear-gradient(135deg,#DC2626,#F97316)}.av6{background:linear-gradient(135deg,#0EA5E9,#6366F1)}.av7{background:linear-gradient(135deg,#D97706,#F59E0B)}.av8{background:linear-gradient(135deg,#831843,#DB2777)}.av-mn{background:linear-gradient(135deg,#D4AF37,#7C3AED)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <input class="search-box" type="text" placeholder="🔍  Search Melanin Network"/>
+  <div class="search-cancel" onclick="location.href='index.html'">Cancel</div>
+</div>
+<div class="main">
+  <div class="tabs">
+    <div class="tab active">For You</div>
+    <div class="tab">❤️ Dating</div>
+    <div class="tab">🔗 Businesses</div>
+    <div class="tab">🎙️ Community</div>
+    <div class="tab">📅 Events</div>
+    <div class="tab">🎵 Music</div>
+  </div>
+
+  <!-- Reels/Shorts -->
+  <div class="reel-banner">
+    <div style="font-size:0.82rem;font-weight:700;margin-bottom:8px">🎬 Community Reels</div>
+    <div class="reel-scroll">
+      <div class="reel-item"><div class="reel-bg av3">✨</div><div class="reel-label">zara_adeyemi</div></div>
+      <div class="reel-item"><div class="reel-bg av1">✂️</div><div class="reel-label">king_cuts</div></div>
+      <div class="reel-item"><div class="reel-bg av5">🎵</div><div class="reel-label">chi_jay</div></div>
+      <div class="reel-item"><div class="reel-bg av4">📿</div><div class="reel-label">naomi_beads</div></div>
+      <div class="reel-item"><div class="reel-bg av-mn">👑</div><div class="reel-label">melanin_network</div></div>
+    </div>
+  </div>
+
+  <!-- Explore Grid -->
+  <div class="grid">
+    <div class="grid-item tall" style=""><div class="grid-item-bg" style="background:linear-gradient(135deg,#1a0a3e,#3B1F0A,#D4AF37)">👑</div><div class="grid-overlay"><span>❤️ 512</span><span>💬 96</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av3">✨💜</div><div class="grid-overlay"><span>❤️ 324</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg" style="background:linear-gradient(135deg,#78350F,#D97706)">📿</div><div class="grid-overlay"><span>❤️ 277</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av5">🎵🎶</div><div class="grid-overlay"><span>❤️ 198</span></div></div>
+    <div class="grid-item wide"><div class="grid-item-bg" style="background:linear-gradient(135deg,#0a0a2e,#7C3AED)">🔗 Black Business Directory</div><div class="grid-overlay"><span>❤️ 445</span><span>💬 67</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av4">🌿</div><div class="grid-overlay"><span>❤️ 156</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av7">🍲</div><div class="grid-overlay"><span>❤️ 233</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av6">📸</div><div class="grid-overlay"><span>❤️ 311</span></div></div>
+    <div class="grid-item tall"><div class="grid-item-bg av8">💃🏾</div><div class="grid-overlay"><span>❤️ 428</span><span>💬 54</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av2">🏙️</div><div class="grid-overlay"><span>❤️ 187</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av1">✂️</div><div class="grid-overlay"><span>❤️ 144</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg" style="background:linear-gradient(135deg,#DC2626,#F97316)">🎭</div><div class="grid-overlay"><span>❤️ 289</span></div></div>
+    <div class="grid-item wide"><div class="grid-item-bg" style="background:linear-gradient(135deg,#4A1942,#1a0a3e)">💜 Find your match on Melanin First</div><div class="grid-overlay"><span>❤️ 603</span><span>💬 112</span></div></div>
+    <div class="grid-item"><div class="grid-item-bg av4">🎓</div><div class="grid-overlay"><span>❤️ 99</span></div></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-tab" onclick="location.href='index.html'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+  <div class="nav-tab active"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Explore</span></div>
+  <div class="nav-tab"><div class="nav-post-btn"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><span>Post</span></div>
+  <div class="nav-tab" onclick="location.href='notifications.html'"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>Activity</span></div>
+  <div class="nav-tab" onclick="location.href='profile.html'"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+</nav>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Create Ad · Melanin Network</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#D4AF37;--purple:#7C3AED;--pink:#E91E8C;--bg:#000;--card:#111;--border:#222;--text:#f1f1f1;--muted:#888;--mn-grad:linear-gradient(135deg,#D4AF37,#c084fc,#7C3AED)}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+
+/* TOP BAR */
+.topbar{position:sticky;top:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:100}
+.logo{font-size:1.3rem;font-weight:900;background:var(--mn-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none}
+.topbar-back{color:var(--muted);font-size:0.85rem;text-decoration:none;display:flex;align-items:center;gap:6px}
+.topbar-back:hover{color:var(--text)}
+
+/* PROGRESS BAR */
+.progress-wrap{background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px}
+.progress-steps{display:flex;align-items:center;gap:0;max-width:700px;margin:0 auto}
+.step{display:flex;align-items:center;flex:1}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;transition:all .3s}
+.step-dot.done{background:var(--purple);color:#fff}
+.step-dot.active{background:var(--mn-grad);color:#fff;box-shadow:0 0 0 3px rgba(124,58,237,0.3)}
+.step-dot.pending{background:var(--border);color:var(--muted)}
+.step-line{flex:1;height:2px;background:var(--border)}
+.step-line.done{background:var(--purple)}
+.step-label{font-size:0.68rem;color:var(--muted);margin-top:6px;text-align:center;white-space:nowrap}
+.steps-row{display:flex;gap:0;max-width:700px;margin:6px auto 0;justify-content:space-between}
+.steps-row span{font-size:0.68rem;color:var(--muted);text-align:center;flex:1}
+.steps-row span.active-label{color:var(--gold);font-weight:600}
+
+/* LAYOUT */
+.page-wrap{max-width:760px;margin:0 auto;padding:28px 16px 80px}
+.section-title{font-size:1.4rem;font-weight:800;margin-bottom:6px}
+.section-sub{color:var(--muted);font-size:0.9rem;margin-bottom:24px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card-title{font-size:0.95rem;font-weight:700;margin-bottom:16px;color:var(--gold)}
+
+/* FORMAT PICKER */
+.format-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:600px){.format-grid{grid-template-columns:repeat(3,1fr)}}
+.format-card{border:2px solid var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;transition:all .25s;text-align:center}
+.format-card:hover{border-color:var(--purple);background:#1a1a2e}
+.format-card.selected{border-color:var(--gold);background:rgba(212,175,55,0.08)}
+.format-icon{font-size:1.8rem;margin-bottom:6px}
+.format-name{font-size:0.82rem;font-weight:700;margin-bottom:3px}
+.format-price{font-size:0.72rem;color:var(--gold)}
+
+/* FORM */
+.form-group{margin-bottom:18px}
+.form-label{font-size:0.82rem;font-weight:600;color:var(--muted);margin-bottom:6px;display:block}
+.form-label span{color:var(--pink)}
+.form-input,.form-select,.form-textarea{width:100%;background:#1a1a1a;border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:0.9rem;outline:none;transition:border .2s;font-family:inherit}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--purple)}
+.form-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.form-textarea{resize:vertical;min-height:90px}
+.char-count{font-size:0.72rem;color:var(--muted);text-align:right;margin-top:4px}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.upload-zone:hover{border-color:var(--purple);background:#0d0d1a}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:2rem;margin-bottom:8px}
+.upload-text{font-size:0.85rem;color:var(--muted)}
+.upload-text strong{color:var(--purple)}
+.upload-hint{font-size:0.72rem;color:var(--muted);margin-top:6px}
+.upload-preview{display:none;margin-top:12px;border-radius:10px;overflow:hidden;max-height:200px}
+.upload-preview img{width:100%;object-fit:cover;border-radius:10px}
+
+/* BUDGET SLIDER */
+.budget-row{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.budget-display{background:var(--mn-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:2rem;font-weight:900;min-width:90px}
+.budget-info{color:var(--muted);font-size:0.8rem}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(to right,var(--purple) 0%,var(--purple) 50%,var(--border) 50%);outline:none;cursor:pointer;margin-bottom:8px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--mn-grad);cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,0.5)}
+.budget-labels{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted)}
+
+/* DURATION */
+.duration-btns{display:flex;gap:8px;flex-wrap:wrap}
+.dur-btn{padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-size:0.82rem;cursor:pointer;transition:all .2s;background:transparent;color:var(--text)}
+.dur-btn:hover{border-color:var(--purple)}
+.dur-btn.selected{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:700}
+
+/* AUDIENCE */
+.audience-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.tag-btn{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:0.78rem;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)}
+.tag-btn:hover{border-color:var(--gold);color:var(--text)}
+.tag-btn.selected{background:rgba(212,175,55,0.15);border-color:var(--gold);color:var(--gold);font-weight:600}
+
+/* SUMMARY */
+.summary-line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.88rem}
+.summary-line:last-child{border:none;font-weight:700;font-size:1rem;padding-top:14px}
+.summary-line span:last-child{color:var(--gold)}
+.summary-total span:last-child{font-size:1.2rem;background:var(--mn-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* PAYMENT */
+.payment-methods{display:flex;gap:10px;margin-bottom:20px}
+.pay-method{flex:1;border:2px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;font-size:0.82rem}
+.pay-method:hover{border-color:var(--purple)}
+.pay-method.selected{border-color:var(--gold);background:rgba(212,175,55,0.06)}
+.pay-method-icon{font-size:1.4rem;margin-bottom:4px}
+.stripe-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;color:var(--muted);font-size:0.75rem}
+.stripe-badge svg{opacity:0.5}
+
+/* SUBMIT BTN */
+.submit-btn{width:100%;padding:16px;border-radius:14px;border:none;background:var(--mn-grad);color:#fff;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:0.5px;transition:opacity .2s;margin-top:8px}
+.submit-btn:hover{opacity:0.9}
+.submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* NAV BUTTONS */
+.nav-btns{display:flex;gap:12px;margin-top:24px}
+.btn-back{flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:0.9rem;font-weight:700;cursor:pointer}
+.btn-next{flex:2;padding:14px;border-radius:12px;border:none;background:var(--mn-grad);color:#fff;font-size:0.9rem;font-weight:800;cursor:pointer}
+.btn-back:hover{border-color:var(--muted)}
+
+/* SUCCESS */
+.success-screen{display:none;text-align:center;padding:60px 24px}
+.success-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#059669,#34D399);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 24px}
+.success-title{font-size:1.8rem;font-weight:900;margin-bottom:10px}
+.success-sub{color:var(--muted);font-size:0.95rem;margin-bottom:32px;line-height:1.6}
+.success-ref{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:28px;font-size:0.85rem}
+.success-ref span{color:var(--gold);font-weight:700;font-size:1rem}
+.success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.suc-btn{padding:12px 24px;border-radius:10px;font-weight:700;font-size:0.88rem;cursor:pointer;text-decoration:none}
+.suc-btn.primary{background:var(--mn-grad);color:#fff;border:none}
+.suc-btn.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+
+/* STEP VISIBILITY */
+.step-panel{display:none}
+.step-panel.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="advertise.html">← Back to Advertise</a>
+  <a class="logo" href="index.html">Melanin Network</a>
+  <div style="width:120px"></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-steps" id="progressSteps">
+    <div class="step">
+      <div class="step-dot active" id="dot1">1</div>
+      <div class="step-line" id="line1"></div>
+    </div>
+    <div class="step">
+      <div class="step-dot pending" id="dot2">2</div>
+      <div class="step-line" id="line2"></div>
+    </div>
+    <div class="step">
+      <div class="step-dot pending" id="dot3">3</div>
+      <div class="step-line" id="line3"></div>
+    </div>
+    <div class="step">
+      <div class="step-dot pending" id="dot4">4</div>
+    </div>
+  </div>
+  <div class="steps-row">
+    <span class="active-label" id="lbl1">Ad Format</span>
+    <span id="lbl2">Creative</span>
+    <span id="lbl3">Audience & Budget</span>
+    <span id="lbl4">Review & Pay</span>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- STEP 1: FORMAT -->
+  <div class="step-panel active" id="panel1">
+    <div class="section-title">Choose your ad format</div>
+    <div class="section-sub">Select how you'd like to appear on Melanin Network</div>
+
+    <div class="format-grid">
+      <div class="format-card selected" data-format="feed" onclick="selectFormat(this,'Feed Ad','10')">
+        <div class="format-icon">🖼️</div>
+        <div class="format-name">Feed Ad</div>
+        <div class="format-price">from £10/day</div>
+      </div>
+      <div class="format-card" data-format="story" onclick="selectFormat(this,'Story Ad','15')">
+        <div class="format-icon">📱</div>
+        <div class="format-name">Story Ad</div>
+        <div class="format-price">from £15/day</div>
+      </div>
+      <div class="format-card" data-format="explore" onclick="selectFormat(this,'Explore Ad','20')">
+        <div class="format-icon">🔍</div>
+        <div class="format-name">Explore</div>
+        <div class="format-price">from £20/day</div>
+      </div>
+      <div class="format-card" data-format="directory" onclick="selectFormat(this,'Business Directory','25')">
+        <div class="format-icon">📋</div>
+        <div class="format-name">Directory Boost</div>
+        <div class="format-price">from £25/day</div>
+      </div>
+      <div class="format-card" data-format="event" onclick="selectFormat(this,'Event Promo','49')">
+        <div class="format-icon">🎟️</div>
+        <div class="format-name">Event Promo</div>
+        <div class="format-price">from £49/event</div>
+      </div>
+      <div class="format-card" data-format="brand" onclick="selectFormat(this,'Brand Partner','299')">
+        <div class="format-icon">👑</div>
+        <div class="format-name">Brand Partner</div>
+        <div class="format-price">£299/month</div>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-next" onclick="goStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: CREATIVE -->
+  <div class="step-panel" id="panel2">
+    <div class="section-title">Create your ad</div>
+    <div class="section-sub">Add your business details and upload your creative</div>
+
+    <div class="card">
+      <div class="card-title">Business Details</div>
+      <div class="form-group">
+        <label class="form-label">Business name <span>*</span></label>
+        <input class="form-input" type="text" id="bizName" placeholder="e.g. Afro Glow Hair Studio"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Industry <span>*</span></label>
+        <select class="form-select" id="industry">
+          <option value="">Select industry…</option>
+          <option>Hair & Beauty</option>
+          <option>Fashion & Clothing</option>
+          <option>Food & Drink</option>
+          <option>Health & Wellness</option>
+          <option>Music & Entertainment</option>
+          <option>Events & Nightlife</option>
+          <option>Education & Coaching</option>
+          <option>Finance & Legal</option>
+          <option>Tech & Digital</option>
+          <option>Community & Culture</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your website or booking link</label>
+        <input class="form-input" type="url" id="bizUrl" placeholder="https://yourbusiness.co.uk"/>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ad Copy</div>
+      <div class="form-group">
+        <label class="form-label">Headline <span>*</span></label>
+        <input class="form-input" type="text" id="adHeadline" placeholder="e.g. Luxury locs — now booking in London" maxlength="60" oninput="updateCount(this,'hCount')"/>
+        <div class="char-count"><span id="hCount">0</span>/60</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="adDesc" placeholder="Tell people what makes you special…" maxlength="150" oninput="updateCount(this,'dCount')"></textarea>
+        <div class="char-count"><span id="dCount">0</span>/150</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Call to action</label>
+        <select class="form-select" id="adCta">
+          <option>Book Now</option>
+          <option>Shop Now</option>
+          <option>Learn More</option>
+          <option>Get Tickets</option>
+          <option>Sign Up</option>
+          <option>Contact Us</option>
+          <option>Visit Website</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Upload Image or Video</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept="image/*,video/*" onchange="handleUpload(this)"/>
+        <div class="upload-icon">📸</div>
+        <div class="upload-text"><strong>Click to upload</strong> or drag & drop</div>
+        <div class="upload-hint">JPG, PNG or MP4 · Max 30MB · Recommended: 1080×1080px</div>
+      </div>
+      <div class="upload-preview" id="uploadPreview">
+        <img id="previewImg" src="" alt="Preview"/>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="goStep(1)">← Back</button>
+      <button class="btn-next" onclick="goStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: AUDIENCE & BUDGET -->
+  <div class="step-panel" id="panel3">
+    <div class="section-title">Audience & budget</div>
+    <div class="section-sub">Choose who sees your ad and how much you want to spend</div>
+
+    <div class="card">
+      <div class="card-title">Target Audience</div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <select class="form-select" id="location">
+          <option>All UK</option>
+          <option>London</option>
+          <option>Birmingham</option>
+          <option>Manchester</option>
+          <option>Leeds</option>
+          <option>Bristol</option>
+          <option>Leicester</option>
+          <option>Nottingham</option>
+          <option>Sheffield</option>
+          <option>Liverpool</option>
+          <option>Glasgow</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Age range</label>
+        <select class="form-select" id="ageRange">
+          <option>18–65+ (all)</option>
+          <option>18–24</option>
+          <option>25–34</option>
+          <option>35–44</option>
+          <option>45–54</option>
+          <option>55+</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Interests (select all that apply)</label>
+        <div class="audience-row" id="interestTags">
+          <div class="tag-btn selected" onclick="toggleTag(this)">Culture & Heritage</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Hair & Beauty</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Music</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Fashion</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Food & Dining</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Business & Finance</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Dating & Relationships</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Fitness & Wellness</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Events & Nightlife</div>
+          <div class="tag-btn" onclick="toggleTag(this)">Parenting & Family</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Daily Budget</div>
+      <div class="budget-row">
+        <div class="budget-display" id="budgetDisplay">£10</div>
+        <div class="budget-info">per day<br/><span style="color:var(--text);font-weight:600" id="reachDisplay">Est. 800–1,200 people</span></div>
+      </div>
+      <input type="range" id="budgetSlider" min="10" max="200" value="10" step="5" oninput="updateBudget(this.value)"/>
+      <div class="budget-labels"><span>£10/day</span><span>£200/day</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Campaign Duration</div>
+      <div class="duration-btns" id="durationBtns">
+        <button class="dur-btn selected" onclick="selectDuration(this,1)">1 day</button>
+        <button class="dur-btn" onclick="selectDuration(this,3)">3 days</button>
+        <button class="dur-btn" onclick="selectDuration(this,7)">7 days</button>
+        <button class="dur-btn" onclick="selectDuration(this,14)">14 days</button>
+        <button class="dur-btn" onclick="selectDuration(this,30)">30 days</button>
+      </div>
+      <div style="margin-top:14px;font-size:0.82rem;color:var(--muted)">Total spend: <strong style="color:var(--gold)" id="totalDisplay">£10</strong></div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="goStep(2)">← Back</button>
+      <button class="btn-next" onclick="goStep(4)">Review Ad →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: REVIEW & PAY -->
+  <div class="step-panel" id="panel4">
+    <div class="section-title">Review & pay</div>
+    <div class="section-sub">Check your details then complete payment to go live</div>
+
+    <div class="card">
+      <div class="card-title">Ad Summary</div>
+      <div class="summary-line"><span>Format</span><span id="sumFormat">Feed Ad</span></div>
+      <div class="summary-line"><span>Business</span><span id="sumBiz">—</span></div>
+      <div class="summary-line"><span>Headline</span><span id="sumHeadline">—</span></div>
+      <div class="summary-line"><span>Location</span><span id="sumLocation">All UK</span></div>
+      <div class="summary-line"><span>Duration</span><span id="sumDuration">1 day</span></div>
+      <div class="summary-line"><span>Daily budget</span><span id="sumBudget">£10/day</span></div>
+      <div class="summary-line summary-total"><span>Total</span><span id="sumTotal">£10</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Payment Method</div>
+      <div class="payment-methods">
+        <div class="pay-method selected" onclick="selectPay(this)">
+          <div class="pay-method-icon">💳</div>
+          <div>Card</div>
+        </div>
+        <div class="pay-method" onclick="selectPay(this)">
+          <div class="pay-method-icon">🍎</div>
+          <div>Apple Pay</div>
+        </div>
+        <div class="pay-method" onclick="selectPay(this)">
+          <div class="pay-method-icon">🔵</div>
+          <div>PayPal</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cardholder name <span>*</span></label>
+        <input class="form-input" type="text" id="cardName" placeholder="Full name on card"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Card number <span>*</span></label>
+        <input class="form-input" type="text" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"/>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Expiry <span>*</span></label>
+          <input class="form-input" type="text" id="cardExp" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"/>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">CVV <span>*</span></label>
+          <input class="form-input" type="text" id="cardCvv" placeholder="123" maxlength="3"/>
+        </div>
+      </div>
+
+      <div class="stripe-badge">
+        <svg width="40" height="16" viewBox="0 0 40 16" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="11" fill="#888" font-family="sans-serif">🔒 Powered by Stripe</text></svg>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(212,175,55,0.3)">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:1.5rem">⚡</div>
+        <div>
+          <div style="font-weight:700;margin-bottom:4px">Your ad goes live within 2 hours</div>
+          <div style="font-size:0.82rem;color:var(--muted)">We review every ad to ensure it meets our community standards. You'll receive an email confirmation once approved.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="payBtn" onclick="submitAd()">🚀 Launch Campaign — Pay <span id="payAmount">£10</span></button>
+
+    <div class="nav-btns" style="margin-top:12px">
+      <button class="btn-back" onclick="goStep(3)" style="flex:1;padding:12px">← Back</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="successScreen" class="success-screen">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Ad submitted! 🎉</div>
+    <div class="success-sub">Your campaign is now under review.<br/>We'll have it live within 2 hours and send you a confirmation email.</div>
+    <div class="success-ref">
+      Campaign reference: <span id="refNum">MN-000000</span>
+    </div>
+    <div class="success-actions">
+      <a class="suc-btn primary" href="index.html">Back to Feed</a>
+      <a class="suc-btn secondary" href="advertise.html">Create Another Ad</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// State
+let state = {
+  step: 1,
+  format: 'Feed Ad',
+  basePrice: 10,
+  budget: 10,
+  duration: 1,
+  total: 10
+};
+
+// FORMAT
+function selectFormat(el, name, price) {
+  document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.format = name;
+  state.basePrice = parseInt(price);
+  state.budget = Math.max(state.budget, state.basePrice);
+  document.getElementById('budgetSlider').min = state.basePrice;
+  document.getElementById('budgetSlider').value = state.budget;
+  updateBudget(state.budget);
+}
+
+// STEPS
+function goStep(n) {
+  document.getElementById('panel' + state.step).classList.remove('active');
+  state.step = n;
+  document.getElementById('panel' + n).classList.add('active');
+  updateProgress();
+  if (n === 4) populateSummary();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updateProgress() {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot' + i);
+    const lbl = document.getElementById('lbl' + i);
+    dot.className = 'step-dot ' + (i < state.step ? 'done' : i === state.step ? 'active' : 'pending');
+    if (lbl) lbl.className = i === state.step ? 'active-label' : '';
+    if (i < 4) {
+      const line = document.getElementById('line' + i);
+      line.className = 'step-line ' + (i < state.step ? 'done' : '');
+    }
+  }
+}
+
+// BUDGET
+function updateBudget(val) {
+  state.budget = parseInt(val);
+  const pct = ((val - 10) / (200 - 10)) * 100;
+  document.getElementById('budgetSlider').style.background =
+    `linear-gradient(to right, var(--purple) 0%, var(--purple) ${pct}%, var(--border) ${pct}%)`;
+  document.getElementById('budgetDisplay').textContent = '£' + val;
+  const low = Math.round(val * 80);
+  const high = Math.round(val * 120);
+  document.getElementById('reachDisplay').textContent = `Est. ${low.toLocaleString()}–${high.toLocaleString()} people`;
+  state.total = state.budget * state.duration;
+  document.getElementById('totalDisplay').textContent = '£' + state.total;
+  document.getElementById('payAmount').textContent = '£' + state.total;
+}
+
+// DURATION
+function selectDuration(el, days) {
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.duration = days;
+  state.total = state.budget * days;
+  document.getElementById('totalDisplay').textContent = '£' + state.total;
+  document.getElementById('payAmount').textContent = '£' + state.total;
+}
+
+// AUDIENCE TAGS
+function toggleTag(el) {
+  el.classList.toggle('selected');
+}
+
+// SUMMARY
+function populateSummary() {
+  document.getElementById('sumFormat').textContent = state.format;
+  document.getElementById('sumBiz').textContent = document.getElementById('bizName').value || '—';
+  document.getElementById('sumHeadline').textContent = document.getElementById('adHeadline').value || '—';
+  document.getElementById('sumLocation').textContent = document.getElementById('location').value;
+  document.getElementById('sumDuration').textContent = state.duration + ' day' + (state.duration > 1 ? 's' : '');
+  document.getElementById('sumBudget').textContent = '£' + state.budget + '/day';
+  document.getElementById('sumTotal').textContent = '£' + state.total;
+  document.getElementById('payAmount').textContent = '£' + state.total;
+}
+
+// UPLOAD
+function handleUpload(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('uploadPreview').style.display = 'block';
+    document.querySelector('.upload-zone .upload-text').innerHTML = '<strong>✅ File uploaded</strong>';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// CHAR COUNT
+function updateCount(el, countId) {
+  document.getElementById(countId).textContent = el.value.length;
+}
+
+// PAY METHOD
+function selectPay(el) {
+  document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// CARD FORMAT
+function formatCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExpiry(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+  el.value = v;
+}
+
+// SUBMIT
+function submitAd() {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Processing…';
+  setTimeout(() => {
+    // In production: POST to backend → Stripe PaymentIntent
+    const ref = 'MN-' + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('refNum').textContent = ref;
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('successScreen').style.display = 'block';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }, 2000);
+}
+</script>
+</body>
+</html>

@@ -420,7 +420,7 @@ async function loadFeed(){
     const r=await fetch(API+'/api/posts',{headers:getToken()?{Authorization:'Bearer '+getToken()}:{}});
     const posts=await r.json();
     const feed=document.getElementById('feed');
-    if(!posts.length){feed.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">No posts yet — be the first! 👑</div>';return;}
+    if(!posts.length){feed.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">No posts yet — be the first! <img src="/crown_king.png" style="width:20px;height:20px;vertical-align:middle"/></div>';return;}
     feed.innerHTML=posts.map(renderPost).join('');
     if(window.innerWidth<=768){
       document.getElementById('mob-sug').style.display='block';
@@ -446,7 +446,7 @@ function renderPost(p){
     </div>
     <div class="post-img" ondblclick="dbl(this)">
       <div class="img-bg" style="background:linear-gradient(160deg,#1a0a3e,#2d1b69,#4a1942)">
-        <span style="font-size:2rem">👑</span>
+        <img src="/crown_king.png" style="width:48px;height:48px;object-fit:contain"/>
         <div style="color:#fff;font-size:0.9rem;margin-top:8px;padding:0 16px;text-align:center;opacity:0.8">${escHtml(p.content.substring(0,80))}</div>
       </div>
       <div class="dbl-h">❤️</div>

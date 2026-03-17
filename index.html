@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Melanin Network</title>
 <link rel="stylesheet" href="style.css"/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#7C3AED"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
 <style>
 /* ── DESKTOP LAYOUT ── */
 .app{display:flex;min-height:100vh;background:var(--white)}
@@ -371,6 +374,7 @@
 </style>
 
 <script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 const API = '';
 let currentUser = null;
 let svT;

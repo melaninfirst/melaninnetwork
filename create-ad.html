@@ -245,6 +245,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
         <label class="form-label">Your website or booking link</label>
         <input class="form-input" type="url" id="bizUrl" placeholder="https://yourbusiness.co.uk"/>
       </div>
+      <div class="form-group">
+        <label class="form-label">Contact email <span>*</span></label>
+        <input class="form-input" type="email" id="bizEmail" placeholder="you@yourbusiness.co.uk"/>
+      </div>
     </div>
 
     <div class="card">
@@ -388,43 +392,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
     </div>
 
     <div class="card">
-      <div class="card-title">Payment Method</div>
-      <div class="payment-methods">
-        <div class="pay-method selected" onclick="selectPay(this)">
-          <div class="pay-method-icon">💳</div>
-          <div>Card</div>
-        </div>
-        <div class="pay-method" onclick="selectPay(this)">
-          <div class="pay-method-icon">🍎</div>
-          <div>Apple Pay</div>
-        </div>
-        <div class="pay-method" onclick="selectPay(this)">
-          <div class="pay-method-icon">🔵</div>
-          <div>PayPal</div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Cardholder name <span>*</span></label>
-        <input class="form-input" type="text" id="cardName" placeholder="Full name on card"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Card number <span>*</span></label>
-        <input class="form-input" type="text" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"/>
-      </div>
-      <div style="display:flex;gap:12px">
-        <div class="form-group" style="flex:1">
-          <label class="form-label">Expiry <span>*</span></label>
-          <input class="form-input" type="text" id="cardExp" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"/>
-        </div>
-        <div class="form-group" style="flex:1">
-          <label class="form-label">CVV <span>*</span></label>
-          <input class="form-input" type="text" id="cardCvv" placeholder="123" maxlength="3"/>
-        </div>
-      </div>
-
-      <div class="stripe-badge">
-        <svg width="40" height="16" viewBox="0 0 40 16" fill="none" xmlns="http://www.w3.org/2000/svg"><text x="0" y="13" font-size="11" fill="#888" font-family="sans-serif">🔒 Powered by Stripe</text></svg>
+      <div class="card-title">Secure Payment</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">You'll be taken to Stripe's secure checkout to pay. Accepts card, Apple Pay &amp; Google Pay.</p>
+      <div class="stripe-badge" style="justify-content:flex-start;font-size:0.85rem;color:var(--muted);gap:8px">
+        🔒 Powered by Stripe — your card details are never stored by us
       </div>
     </div>
 
@@ -584,18 +555,49 @@ function formatExpiry(el) {
 }
 
 // SUBMIT
-function submitAd() {
+async function submitAd() {
   const btn = document.getElementById('payBtn');
+  const bizName  = document.getElementById('bizName').value.trim();
+  const bizEmail = document.getElementById('bizEmail').value.trim();
+  const headline = document.getElementById('adHeadline').value.trim();
+  const body     = document.getElementById('adDesc').value.trim();
+  const cta_url  = document.getElementById('bizUrl').value.trim();
+
+  if (!bizName)  return alert('Please enter your business name');
+  if (!bizEmail) return alert('Please enter your contact email');
+  if (!headline) return alert('Please enter an ad headline');
+
   btn.disabled = true;
-  btn.textContent = '⏳ Processing…';
-  setTimeout(() => {
-    // In production: POST to backend → Stripe PaymentIntent
-    const ref = 'MN-' + Math.floor(100000 + Math.random() * 900000);
-    document.getElementById('refNum').textContent = ref;
-    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('successScreen').style.display = 'block';
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  }, 2000);
+  btn.textContent = '⏳ Connecting to Stripe…';
+
+  try {
+    const r = await fetch('/api/ads/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business_name: bizName,
+        contact_email: bizEmail,
+        format:        state.format,
+        headline,
+        body,
+        cta_url,
+        budget_daily:  state.budget,
+        duration_days: state.duration
+      })
+    });
+    const data = await r.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert(data.error || 'Payment failed — please try again');
+      btn.disabled = false;
+      btn.textContent = '🚀 Launch Campaign — Pay £' + state.total;
+    }
+  } catch (e) {
+    alert('Network error — please try again');
+    btn.disabled = false;
+    btn.textContent = '🚀 Launch Campaign — Pay £' + state.total;
+  }
 }
 </script>
 </body>
